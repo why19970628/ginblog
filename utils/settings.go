@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+
 	"gopkg.in/ini.v1"
 )
 
@@ -21,16 +22,24 @@ var (
 	SecretKey  string
 	Bucket     string
 	QiniuSever string
+
+	OssAccessKey       string
+	OssSecretKey       string
+	OssBucket          string
+	OssEndPoint        string
+	OssFolderPrefix    string
+	OssUrlPrefixPublic string
 )
 
-func init(){
+func init() {
 	base_config, err := ini.Load("config/local.ini")
 	if err != nil {
 		fmt.Println("配置文件读取错误，请检查文件路径:", err)
 	}
 	LoadServer(base_config)
 	LoadData(base_config)
-	LoadQiniu(base_config)
+	// LoadQiniu(base_config)
+	LoadOss(base_config)
 
 }
 
@@ -49,9 +58,18 @@ func LoadData(file *ini.File) {
 	DbName = file.Section("database").Key("DbName").MustString("ginblog")
 }
 
-func LoadQiniu(file *ini.File) {
-	AccessKey = file.Section("qiniu").Key("AccessKey").String()
-	SecretKey = file.Section("qiniu").Key("SecretKey").String()
-	Bucket = file.Section("qiniu").Key("Bucket").String()
-	QiniuSever = file.Section("qiniu").Key("QiniuSever").String()
+// func LoadQiniu(file *ini.File) {
+// 	AccessKey = file.Section("qiniu").Key("AccessKey").String()
+// 	SecretKey = file.Section("qiniu").Key("SecretKey").String()
+// 	Bucket = file.Section("qiniu").Key("Bucket").String()
+// 	QiniuSever = file.Section("qiniu").Key("QiniuSever").String()
+// }
+
+func LoadOss(file *ini.File) {
+	OssAccessKey = file.Section("oss").Key("AccessKey").String()
+	OssSecretKey = file.Section("oss").Key("SecretKey").String()
+	OssBucket = file.Section("oss").Key("Bucket").String()
+	OssEndPoint = file.Section("oss").Key("EndPoint").String()
+	OssFolderPrefix = file.Section("oss").Key("FolderPrefix").String()
+	OssUrlPrefixPublic = file.Section("oss").Key("UrlPrefixPublic").String()
 }

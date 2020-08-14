@@ -3,9 +3,10 @@ package model
 import (
 	"encoding/base64"
 	"ginblog/utils/errmsg"
+	"log"
+
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/scrypt"
-	"log"
 )
 
 type User struct {
@@ -15,6 +16,7 @@ type User struct {
 	Role     int    `gorm:"type:int;DEFAULT:2" json:"role" validate:"required,gte=2" label:"角色码"`
 }
 
+// 查询用户是否存在
 func CheckUser(name string) (code int) {
 	var user User
 	db.Select("id").Where("username = ?", name).First(&user)
