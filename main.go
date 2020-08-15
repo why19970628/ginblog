@@ -8,7 +8,7 @@ import (
 
 func main() {
     model.InitDb()
-    oss.Initserver()
+    //oss.Initserver()
     r := routes.InitRouter()
     r.Run(utils.HttpPort)
 

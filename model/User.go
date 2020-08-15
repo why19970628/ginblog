@@ -13,7 +13,7 @@ type User struct {
 	gorm.Model
 	Username string `gorm:"type:varchar(20);not null " json:"username" validate:"required,min=4,max=12" label:"用户名"`
 	Password string `gorm:"type:varchar(20);not null" json:"password" validate:"required,min=6,max=20" label:"密码"`
-	Role     int    `gorm:"type:int;DEFAULT:2" json:"role" validate:"required,gte=2" label:"角色码"`
+	Role     int    `gorm:"type:int;DEFAULT:2" json:"role" validate:"required" label:"角色码"`
 }
 
 // 查询用户是否存在
@@ -27,7 +27,7 @@ func CheckUser(name string) (code int) {
 }
 
 func CreateUser(user *User) int {
-	user.Password = ScryptPw(user.Password)
+	//user.Password = ScryptPw(user.Password)
 	err := db.Create(&user).Error
 	if err != nil {
 		return errmsg.ERROR
@@ -71,22 +71,6 @@ func DeleteUser(id int) int {
 	return errmsg.SUCCSE
 }
 
-// 登录验证
-func CheckLogin(username string, password string) int {
-	var user User
-	db.Where("username = ?", username).First(&user)
-
-	if user.ID == 0 {
-		return errmsg.ERROR_USER_NOT_EXIST
-	}
-	if ScryptPw(password) != user.Password {
-		return errmsg.ERROR_PASSWORD_WRONG
-	}
-	if user.Role != 1 {
-		return errmsg.ERROR_USER_NO_RIGHT
-	}
-	return errmsg.SUCCSE
-}
 
 // 密码加密
 func (u *User) BeforeSave() {
@@ -104,4 +88,23 @@ func ScryptPw(password string) string {
 	}
 	fpw := base64.StdEncoding.EncodeToString(HashPw)
 	return fpw
+}
+
+
+// 登录验证
+func CheckLogin(username string, password string) int {
+	var user User
+
+	db.Where("username = ?", username).First(&user)
+
+	if user.ID == 0 {
+		return errmsg.ERROR_USER_NOT_EXIST
+	}
+	if ScryptPw(password) != user.Password {
+		return errmsg.ERROR_PASSWORD_WRONG
+	}
+	if user.Role != 1 {
+		return errmsg.ERROR_USER_NO_RIGHT
+	}
+	return errmsg.SUCCSE
 }

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"ginblog/model"
 	"ginblog/utils/errmsg"
 	"ginblog/utils/validator"
@@ -10,29 +11,33 @@ import (
 )
 
 // 添加用户
-func AddUser(c *gin.Context)  {
-	var user *model.User
+func AddUser(c *gin.Context) {
+	var data model.User
+	var msg string
+	_ = c.ShouldBindJSON(&data)
+	fmt.Println(data)
 
-	_ = c.ShouldBindJSON(&user)
-	msg, code := validator.Validate(&user)
-	if code != errmsg.SUCCSE{
+
+	msg, code := validator.Validate(&data)
+	if code != errmsg.SUCCSE {
 		c.JSON(http.StatusOK, gin.H{
-			"status": code,
-			"sessage": msg,
+			"status":  code,
+			"message": msg,
 		})
 		return
 	}
 
-	code = model.CheckUser(user.Username)
-	if code == errmsg.SUCCSE{
-		model.CreateUser(user)
+	code = model.CheckUser(data.Username)
+	if code == errmsg.SUCCSE {
+		model.CreateUser(&data)
 	}
-	if code == errmsg.ERROR_USERNAME_USED{
+	if code == errmsg.ERROR_USERNAME_USED {
 		code = errmsg.ERROR_USERNAME_USED
 	}
+	print(code,  errmsg.GetErrMsg(code))
 	c.JSON(http.StatusOK, gin.H{
-		"status": code,
-		"sessage": errmsg.GetErrMsg(code),
+		"status":  code,
+		"message": errmsg.GetErrMsg(code),
 	})
 }
 
@@ -64,7 +69,7 @@ func EditUser(c *gin.Context) {
 	var data model.User
 	id, _ := strconv.Atoi(c.Param("id"))
 	_ = c.ShouldBindJSON(&data)
-	code = model.CheckUser(data.Username)
+	code := model.CheckUser(data.Username)
 	if code == errmsg.SUCCSE {
 		model.EditUser(id, &data)
 	}
@@ -82,7 +87,7 @@ func EditUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	code = model.DeleteUser(id)
+	code := model.DeleteUser(id)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  code,
