@@ -15,15 +15,17 @@ func Validate(data interface{}) (string, int) {
 	uni := unTrans.New(zh_Hans_CN.New())
 	trans, _ := uni.GetTranslator("zh_Hans_CN")
 
+	// 中文提示
 	err := zhTrans.RegisterDefaultTranslations(validate, trans)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+	// 映射db中的标签
 	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
 		label := field.Tag.Get("label")
 		return label
 	})
-
+	// 验证是结构体
 	err = validate.Struct(data)
 	if err != nil {
 		for _, v := range err.(validator.ValidationErrors) {
