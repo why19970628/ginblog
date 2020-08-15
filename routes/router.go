@@ -13,7 +13,7 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(middleware.Log())
 	r.Use(gin.Recovery())
-
+	r.Use(middleware.Cors())
 	auth := r.Group("api/v1")
 	auth.Use(middleware.JwtToken())
 	{
