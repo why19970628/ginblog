@@ -4,4 +4,4 @@ log/
 bin
 .DS_Store
 .vscode
-config/local.ini
+config/*
