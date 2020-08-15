@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"ginblog/model"
 	"ginblog/utils/errmsg"
 	"ginblog/utils/validator"
@@ -15,9 +14,6 @@ func AddUser(c *gin.Context) {
 	var data model.User
 	var msg string
 	_ = c.ShouldBindJSON(&data)
-	fmt.Println(data)
-
-
 	msg, code := validator.Validate(&data)
 	if code != errmsg.SUCCSE {
 		c.JSON(http.StatusOK, gin.H{
