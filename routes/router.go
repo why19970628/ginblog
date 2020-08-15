@@ -29,7 +29,7 @@ func InitRouter() *gin.Engine {
 		auth.PUT("article/:id", v1.EditArt)
 		auth.DELETE("article/:id", v1.DeleteArt)
 		// 上传文件
-		//auth.POST("upload", v1.UpLoad)
+		auth.POST("upload", v1.UploadOssImages)
 	}
 	router := r.Group("api/v1")
 	{
