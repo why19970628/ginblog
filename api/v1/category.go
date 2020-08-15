@@ -1,48 +1,34 @@
 package v1
 
 import (
-	"fmt"
 	"ginblog/model"
 	"ginblog/utils/errmsg"
-	"ginblog/utils/validator"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-// 添加用户
-func AddUser(c *gin.Context) {
-	var data model.User
-	var msg string
+// 添加分类
+func AddCategory(c *gin.Context) {
+	var data model.Category
 	_ = c.ShouldBindJSON(&data)
-	fmt.Println(data)
-
-
-	msg, code := validator.Validate(&data)
-	if code != errmsg.SUCCSE {
-		c.JSON(http.StatusOK, gin.H{
-			"status":  code,
-			"message": msg,
-		})
-		return
-	}
-
-	code = model.CheckUser(data.Username)
+	code := model.CheckCategory(data.Name)
 	if code == errmsg.SUCCSE {
-		model.CreateUser(&data)
+		model.CreateCate(&data)
 	}
-	if code == errmsg.ERROR_USERNAME_USED {
-		code = errmsg.ERROR_USERNAME_USED
+	if code == errmsg.ERROR_CATENAME_USED {
+		code = errmsg.ERROR_CATENAME_USED
 	}
-	print(code,  errmsg.GetErrMsg(code))
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  code,
+		"data":    data,
 		"message": errmsg.GetErrMsg(code),
 	})
 }
 
-// 查询用户列表
-func GetUsers(c *gin.Context){
+// 查询分类列表
+func GetCate(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.Query("pagesize"))
 	pageNum, _ := strconv.Atoi(c.Query("pagenum"))
 
@@ -52,7 +38,7 @@ func GetUsers(c *gin.Context){
 	if pageNum == 0 {
 		pageNum = -1
 	}
-	data, total := model.GetUsers(pageSize, pageNum)
+	data, total := model.GetCate(pageSize, pageNum)
 	code := errmsg.SUCCSE
 	c.JSON(http.StatusOK, gin.H{
 		"status":  code,
@@ -60,20 +46,18 @@ func GetUsers(c *gin.Context){
 		"total":   total,
 		"message": errmsg.GetErrMsg(code),
 	})
-
 }
 
-
-// 编辑用户
-func EditUser(c *gin.Context) {
-	var data model.User
+// 编辑分类名
+func EditCate(c *gin.Context) {
+	var data model.Category
 	id, _ := strconv.Atoi(c.Param("id"))
 	_ = c.ShouldBindJSON(&data)
-	code := model.CheckUser(data.Username)
+	code := model.CheckCategory(data.Name)
 	if code == errmsg.SUCCSE {
-		model.EditUser(id, &data)
+		model.EditCate(id, &data)
 	}
-	if code == errmsg.ERROR_USERNAME_USED {
+	if code == errmsg.ERROR_CATENAME_USED {
 		c.Abort()
 	}
 
@@ -83,11 +67,11 @@ func EditUser(c *gin.Context) {
 	})
 }
 
-// 删除用户
-func DeleteUser(c *gin.Context) {
+// 删除分类
+func DeleteCate(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	code := model.DeleteUser(id)
+	code := model.DeleteCate(id)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  code,

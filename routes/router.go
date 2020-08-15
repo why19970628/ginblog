@@ -1,9 +1,10 @@
 package routes
 
 import (
+	v1 "ginblog/api/v1"
 	"ginblog/middleware"
 	"ginblog/utils"
-	"ginblog/api/v1"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,11 +14,32 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.Log())
 	r.Use(gin.Recovery())
 
-	RouterV1 := r.Group("/api/v1")
+	auth := r.Group("api/v1")
+	auth.Use(middleware.JwtToken())
 	{
-		RouterV1.POST("user/add", v1.AddUser)
-		RouterV1.GET("users", v1.GetUsers)
-
+		// 用户模块的路由接口
+		auth.PUT("user/:id", v1.EditUser)
+		auth.DELETE("user/:id", v1.DeleteUser)
+		// 分类模块的路由接口
+		auth.POST("category/add", v1.AddCategory)
+		auth.PUT("category/:id", v1.EditCate)
+		auth.DELETE("category/:id", v1.DeleteCate)
+		// 文章模块的路由接口
+		auth.POST("article/add", v1.AddArticle)
+		auth.PUT("article/:id", v1.EditArt)
+		auth.DELETE("article/:id", v1.DeleteArt)
+		// 上传文件
+		//auth.POST("upload", v1.UpLoad)
+	}
+	router := r.Group("api/v1")
+	{
+		router.POST("user/add", v1.AddUser)
+		router.GET("users", v1.GetUsers)
+		router.GET("category", v1.GetCate)
+		router.GET("article", v1.GetArt)
+		router.GET("article/list/:id", v1.GetCateArt)
+		router.GET("article/info/:id", v1.GetArtInfo)
+		router.POST("login", v1.Login)
 	}
 
 	return r
