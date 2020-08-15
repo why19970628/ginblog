@@ -13,23 +13,27 @@ import (
 
 func Log() gin.HandlerFunc {
 	filePath := "log/log"
-	//linkName := "latest_log.log"
+	linkName := "latest_log.log"
 
 	scr, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
 	logger := logrus.New()
-
+	//输出路径
 	logger.Out = scr
 
 	logger.SetLevel(logrus.DebugLevel)
 
+	// 按时间分割日志
 	logWriter, _ := retalog.New(
 		filePath+"%Y%m%d.log",
+		// 最大保存时间
 		retalog.WithMaxAge(7*24*time.Hour),
+		// 分割时间
 		retalog.WithRotationTime(24*time.Hour),
-		//retalog.WithLinkName(linkName),
+		// 软连接 将最新的log日志同步，在window上需要admin启动项目
+		retalog.WithLinkName(linkName),
 	)
 
 	writeMap := lfshook.WriterMap{
@@ -50,7 +54,9 @@ func Log() gin.HandlerFunc {
 		startTime := time.Now()
 		c.Next()
 		stopTime := time.Since(startTime)
+		// 开销时间
 		spendTime := fmt.Sprintf("%d ms", int(math.Ceil(float64(stopTime.Nanoseconds())/1000000.0)))
+		// 请求主题
 		hostName, err := os.Hostname()
 		if err != nil {
 			hostName = "unknown"
@@ -75,6 +81,10 @@ func Log() gin.HandlerFunc {
 			"DataSize":  dataSize,
 			"Agent":     userAgent,
 		})
+		// time="2020-08-15 01:42:33" level=warning Agent=PostmanRuntime/7.26.3 DataSize=0
+		// HostName=huayangwang.local Ip=127.0.0.1 Method=POST Path=/api/v1/users SpendTime="1 ms" status=404
+
+		// 系统内部有错误
 		if len(c.Errors) > 0 {
 			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 		}
